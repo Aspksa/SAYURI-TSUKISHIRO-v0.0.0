@@ -9,7 +9,6 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 from .core import ROOT
@@ -66,12 +65,13 @@ def github_blob_sha(data):
 def manifest_and_tree(branch):
     if branch not in ALLOWED_BRANCHES:
         raise UpdateError("Unsupported update branch")
-    escaped = quote(branch, safe="")
     base = f"https://api.github.com/repos/{OWNER}/{REPO}"
     manifest_url = f"https://raw.githubusercontent.com/{OWNER}/{REPO}/{branch}/update-manifest.json"
     try:
         manifest = json.loads(request_bytes(manifest_url, 100_000))
-        tree = json.loads(request_bytes(f"{base}/git/trees/{escaped}?recursive=1", 2_000_000))
+        ref_data = json.loads(request_bytes(f"{base}/git/ref/heads/{branch}", 100_000))
+        commit_sha = ref_data["object"]["sha"]
+        tree = json.loads(request_bytes(f"{base}/git/trees/{commit_sha}?recursive=1", 2_000_000))
         files = manifest["files"]
         if (not isinstance(files, list) or not files or len(files) > MAX_FILES or
                 len(set(files)) != len(files) or not all(allowed(p) for p in files)):
