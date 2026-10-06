@@ -1,5 +1,6 @@
 """SQLite local database. Data lives beside the program."""
 import sqlite3
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -12,8 +13,16 @@ class Database:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, text TEXT NOT NULL, created TEXT NOT NULL)")
 
+    @contextmanager
     def connect(self):
-        return sqlite3.connect(self.path, timeout=10)
+        # sqlite3's own context manager commits but never closes; close explicitly
+        # so the database file is released (Windows file locks, safe USB removal).
+        conn = sqlite3.connect(self.path, timeout=10)
+        try:
+            with conn:
+                yield conn
+        finally:
+            conn.close()
 
     def notes(self):
         with self.connect() as conn:

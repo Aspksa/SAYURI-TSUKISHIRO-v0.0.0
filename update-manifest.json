@@ -3,11 +3,13 @@
   "files": [
     "sayuri/__init__.py",
     "sayuri/core.py",
+    "sayuri/disk.py",
     "sayuri/storage.py",
     "sayuri/updater.py",
     "sayuri/web.py",
     "web/index.html",
     "tests/test_core.py",
+    "tests/test_disk.py",
     "PORTABLE.md"
   ]
 }

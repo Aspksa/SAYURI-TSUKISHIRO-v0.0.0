@@ -2,58 +2,270 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SAYURI TSUKISHIRO</title>
 <style>
-:root{color-scheme:dark;font-family:system-ui,Segoe UI,sans-serif;background:#0c1020;color:#f3f5fe}
-*{box-sizing:border-box}body{margin:0;min-height:100vh}
-aside{position:fixed;inset:0 auto 0 0;width:236px;background:#151c30;border-right:1px solid #36445f;padding:24px 14px}
-.brand{font-weight:750;letter-spacing:.1em;margin:8px 10px 32px}
-.brand small{display:block;font-size:11px;color:#94addb;letter-spacing:.05em;margin-top:10px}
-nav button{width:100%;display:block;text-align:left;background:transparent;color:#c5d0e9;border:0;border-radius:10px;padding:13px 14px;font:inherit;cursor:pointer;margin:5px 0}
-nav button[aria-current="page"]{background:#30436e;color:white;font-weight:700}
-main{margin-left:236px;max-width:950px;padding:44px}
-h1{font-size:clamp(25px,4vw,38px)}small,.muted{color:#a6b6d2}
-.panel{background:#171f33;border:1px solid #36445f;border-radius:14px;padding:22px;margin:24px 0}
-textarea,button{font:inherit}textarea{width:100%;padding:12px;border:1px solid #60708a;border-radius:9px;background:#0d1324;color:white}
-.action{background:#91acff;border:0;border-radius:8px;padding:11px 17px;color:#0b1427;font-weight:700;cursor:pointer;margin-top:10px}
-.action:disabled{opacity:.5;cursor:wait}
-li{overflow-wrap:anywhere;white-space:pre-wrap;margin:10px 0}.hidden{display:none!important}
-#message{min-height:20px;white-space:pre-wrap}
-@media(max-width:640px){aside{position:static;width:auto;border-right:0;border-bottom:1px solid #36445f;padding:14px}.brand{margin:4px 4px 10px}nav{display:flex;gap:6px}nav button{font-size:13px;padding:10px 9px}main{margin:0;padding:16px}.panel{padding:16px}}
+:root{
+  color-scheme:dark;
+  --bg:#070a16;--bg2:#0d1226;--glass:rgba(22,28,54,.62);--glass-hi:rgba(34,42,78,.7);
+  --line:rgba(170,186,240,.14);--line-hi:rgba(190,204,255,.32);
+  --text:#eef1ff;--muted:#9aa5c8;--faint:#6b7599;
+  --moon:#f4ecd6;--accent:#b9c6ff;--accent2:#e7c6ff;--ok:#8fe3c0;--err:#ff9fb2;
+  --serif:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",Georgia,"Times New Roman",serif;
+  --sans:"Segoe UI Variable","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-family:var(--sans);color:var(--text);background:var(--bg)
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:
+  radial-gradient(1200px 700px at 85% -10%,rgba(124,140,255,.16),transparent 60%),
+  radial-gradient(900px 600px at -10% 110%,rgba(214,150,255,.10),transparent 60%),
+  linear-gradient(180deg,var(--bg2),var(--bg) 70%);background-attachment:fixed}
+/* starfield */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;background-image:
+  radial-gradient(1px 1px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 72% 12%,#fff,transparent),
+  radial-gradient(1.5px 1.5px at 40% 66%,#dfe5ff,transparent),radial-gradient(1px 1px at 88% 48%,#fff,transparent),
+  radial-gradient(1px 1px at 22% 82%,#fff,transparent),radial-gradient(1.5px 1.5px at 58% 30%,#f2e8ff,transparent),
+  radial-gradient(1px 1px at 93% 86%,#fff,transparent),radial-gradient(1px 1px at 6% 52%,#fff,transparent);
+  animation:twinkle 7s ease-in-out infinite alternate}
+@keyframes twinkle{to{opacity:.25}}
+
+/* sidebar */
+aside{position:fixed;inset:0 auto 0 0;width:260px;padding:28px 16px;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(16,20,42,.85),rgba(10,13,28,.85));border-right:1px solid var(--line);
+  backdrop-filter:blur(14px);z-index:2}
+.brand{display:flex;align-items:center;gap:14px;margin:4px 8px 36px}
+.moon{flex:none;width:42px;height:42px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fffaf0,var(--moon) 45%,#cfc3a4);
+  box-shadow:0 0 18px rgba(244,236,214,.45),0 0 48px rgba(185,198,255,.25);position:relative}
+.moon::after{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 70% 60%,rgba(0,0,0,.08) 0 3px,transparent 4px),
+             radial-gradient(circle at 45% 70%,rgba(0,0,0,.07) 0 2px,transparent 3px)}
+.brand b{display:block;font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.16em;line-height:1.35}
+.brand small{display:block;font-size:10.5px;color:var(--faint);letter-spacing:.22em;margin-top:4px}
+nav{display:flex;flex-direction:column;gap:4px}
+nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;color:var(--muted);
+  border:1px solid transparent;border-radius:12px;padding:11px 14px;font:inherit;font-size:14.5px;cursor:pointer;
+  transition:background .2s,color .2s,border-color .2s}
+nav button svg{width:18px;height:18px;flex:none;opacity:.8}
+nav button:hover{background:rgba(185,198,255,.06);color:var(--text)}
+nav button[aria-current="page"]{background:linear-gradient(90deg,rgba(185,198,255,.16),rgba(231,198,255,.06));
+  border-color:var(--line-hi);color:var(--text);font-weight:600}
+nav button[aria-current="page"] svg{opacity:1;color:var(--accent)}
+.side-foot{margin-top:auto;padding:14px;border-radius:12px;border:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.5}
+.side-foot .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--faint);margin-right:7px;vertical-align:1px}
+.side-foot .dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+
+/* content */
+main{margin-left:260px;padding:52px clamp(20px,5vw,64px) 64px;max-width:1080px;position:relative;z-index:1}
+section{animation:rise .45s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.eyebrow{font-size:11px;letter-spacing:.28em;color:var(--accent);text-transform:uppercase;margin:0 0 10px}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,4.4vw,44px);letter-spacing:.02em;margin:0 0 8px;
+  background:linear-gradient(90deg,#fff,#cfd7ff 60%,#ead3ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);margin:0 0 30px;max-width:60ch;line-height:1.6}
+h2{font-size:15px;font-weight:600;margin:0 0 14px;letter-spacing:.02em}
+.panel{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:24px;margin:0 0 20px;
+  backdrop-filter:blur(12px);box-shadow:0 20px 60px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.04)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.stat{margin:0}
+.stat .label{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.stat .value{font-family:var(--serif);font-size:28px;margin-top:8px;color:var(--text)}
+.stat .value.ok{color:var(--ok)}
+.muted{color:var(--muted)}small{color:var(--muted)}
+a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(185,198,255,.3)}a:hover{border-color:var(--accent)}
+
+/* form */
+textarea{width:100%;font:inherit;font-size:15px;line-height:1.5;padding:14px 16px;border-radius:14px;resize:vertical;
+  border:1px solid var(--line-hi);background:rgba(5,8,20,.55);color:var(--text);transition:border-color .2s,box-shadow .2s}
+textarea::placeholder{color:var(--faint)}
+textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px rgba(185,198,255,.12)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;flex-wrap:wrap}
+.hint{font-size:12px;color:var(--faint)}
+.action{font:inherit;font-size:14px;font-weight:600;cursor:pointer;border:0;border-radius:12px;padding:11px 20px;color:#0b1029;
+  background:linear-gradient(135deg,#dfe4ff,var(--accent) 50%,var(--accent2));
+  box-shadow:0 8px 24px -10px rgba(185,198,255,.7);transition:transform .15s,box-shadow .2s,opacity .2s}
+.action:hover{transform:translateY(-1px);box-shadow:0 12px 30px -10px rgba(185,198,255,.9)}
+.action:active{transform:none}
+.action.ghost{background:transparent;color:var(--text);border:1px solid var(--line-hi);box-shadow:none}
+.action:disabled{opacity:.5;cursor:wait;transform:none}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+
+/* notes */
+#notes{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:10px}
+#notes li{padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line);
+  overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.55;animation:rise .35s ease both}
+#notes li time{display:block;font-size:11.5px;color:var(--faint);margin-top:8px;letter-spacing:.04em}
+.empty{text-align:center;color:var(--faint);padding:28px 0 8px;font-size:14px}
+.empty::before{content:"☾";display:block;font-size:30px;color:var(--moon);opacity:.6;margin-bottom:6px}
+
+/* updates */
+.repo{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.repo svg{width:22px;height:22px;flex:none;color:var(--muted)}
+.repo small{display:block;margin-top:2px}
+#updateResult{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:rgba(185,198,255,.06);border:1px solid var(--line);
+  font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.note{font-size:13px;line-height:1.6;margin:16px 0 0}
+
+#message{min-height:20px;white-space:pre-wrap;color:var(--err);margin:12px 0 0}
+#message:empty{display:none}
+#message:not(:empty){padding:12px 14px;border-radius:12px;background:rgba(255,159,178,.08);border:1px solid rgba(255,159,178,.3)}
+.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* disk */
+.crumbs{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:0 0 16px;font-size:14px}
+.crumbs button{background:none;border:0;color:var(--muted);font:inherit;padding:6px 8px;border-radius:8px;cursor:pointer}
+.crumbs button:hover{background:rgba(185,198,255,.08);color:var(--text)}
+.crumbs button:last-child{color:var(--text);font-weight:600}
+.crumbs i{font-style:normal;color:var(--faint)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar .spacer{flex:1}
+.action.sm{padding:9px 15px;font-size:13.5px}
+.drop{position:relative;border-radius:18px;transition:box-shadow .2s}
+.drop.over{box-shadow:0 0 0 2px var(--accent),0 0 50px rgba(185,198,255,.25)}
+.drop.over::after{content:"Отпустите файлы, чтобы загрузить";position:absolute;inset:0;display:grid;place-items:center;border-radius:18px;
+  background:rgba(7,10,22,.8);font-family:var(--serif);font-size:20px;z-index:3}
+.files{list-style:none;margin:0;padding:0}
+.files li{display:grid;grid-template-columns:44px 1fr auto auto auto;align-items:center;gap:14px;padding:9px 10px;border-radius:12px;border:1px solid transparent}
+.files li:hover{background:rgba(185,198,255,.06);border-color:var(--line)}
+.files .ico{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:rgba(185,198,255,.08);overflow:hidden;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.04em}
+.files .ico.dir{background:linear-gradient(135deg,rgba(185,198,255,.28),rgba(231,198,255,.2));color:var(--text)}
+.files .ico img{width:100%;height:100%;object-fit:cover}
+.files .ico svg{width:22px;height:22px}
+.files .nm{min-width:0;background:none;border:0;color:var(--text);font:inherit;text-align:left;cursor:pointer;padding:6px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.files .nm:hover{color:var(--accent)}
+.files .meta{font-size:12.5px;color:var(--faint);white-space:nowrap;text-align:right}
+.files .acts{display:flex;gap:2px;opacity:.55}
+.files li:hover .acts,.files li:focus-within .acts{opacity:1}
+.icon-btn{background:none;border:0;color:var(--muted);width:34px;height:34px;border-radius:9px;cursor:pointer;display:grid;place-items:center}
+.icon-btn:hover{background:rgba(185,198,255,.12);color:var(--text)}
+.icon-btn svg{width:17px;height:17px}
+.icon-btn.danger:hover{color:var(--err)}
+.usage{margin-top:18px;font-size:12.5px;color:var(--muted)}
+.bar{height:6px;border-radius:6px;background:rgba(185,198,255,.12);margin-top:8px;overflow:hidden}
+.bar span{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+#uploads{display:grid;gap:8px;margin-bottom:14px}
+#uploads div.up{padding:10px 14px;border-radius:12px;border:1px solid var(--line);font-size:13px;background:rgba(185,198,255,.05)}
+dialog{border:1px solid var(--line-hi);border-radius:18px;background:#10152c;color:var(--text);padding:24px;width:min(420px,calc(100vw - 32px));box-shadow:0 30px 80px rgba(0,0,0,.7)}
+dialog::backdrop{background:rgba(3,5,14,.7);backdrop-filter:blur(4px)}
+dialog h2{margin-bottom:14px}dialog p{color:var(--muted);line-height:1.5;margin:0 0 14px}
+dialog input{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line-hi);background:rgba(5,8,20,.55);color:var(--text)}
+dialog input:focus{outline:0;border-color:var(--accent)}
+dialog .actions{justify-content:flex-end;margin-bottom:0}
+@media(max-width:760px){.files li{grid-template-columns:44px 1fr auto}.files .meta{display:none}}
+@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+@media(max-width:760px){
+  aside{position:sticky;top:0;width:auto;height:auto;flex-direction:column;padding:14px 16px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{margin:0 0 12px}.moon{width:32px;height:32px}
+  nav{flex-direction:row;overflow-x:auto}
+  nav button{width:auto;white-space:nowrap;padding:9px 12px;font-size:13.5px}
+  .side-foot{display:none}
+  main{margin:0;padding:28px 16px 48px}
+  .panel{padding:18px;border-radius:16px}
+}
 </style></head><body>
-<aside><div class="brand">SAYURI TSUKISHIRO<small>LOCAL SYSTEM · v0.0.0</small></div>
-<nav aria-label="Основное меню">
-<button type="button" data-view="home" aria-current="page">⌂ Обзор</button>
-<button type="button" data-view="storage">▤ База данных</button>
-<button type="button" data-view="updates">↻ Обновление проекта</button>
-</nav></aside>
+<aside>
+  <div class="brand"><div class="moon" aria-hidden="true"></div><div><b>SAYURI<br>TSUKISHIRO</b><small>月白 · v0.0.0</small></div></div>
+  <nav aria-label="Основное меню">
+    <button type="button" data-view="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Обзор</button>
+    <button type="button" data-view="disk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Диск</button>
+    <button type="button" data-view="storage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><ellipse cx="12" cy="5.5" rx="8" ry="2.5"/><path d="M4 5.5v13c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-13M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5"/></svg>База данных</button>
+    <button type="button" data-view="updates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></svg>Обновление</button>
+  </nav>
+  <div class="side-foot"><span class="dot" id="dot"></span><span id="sideStatus">Подключение…</span><br><span style="color:var(--faint)">127.0.0.1 · только локально</span></div>
+</aside>
 <main>
-<section id="home"><h1>Ядро Sayuri</h1><div class="panel"><h2>Состояние системы</h2><p id="status">Подключение…</p><p class="muted">Данные остаются на локальном носителе.</p></div></section>
-<section id="storage" class="hidden"><h1>База данных</h1><div class="panel"><form id="form">
-<textarea id="text" maxlength="2000" required rows="3" placeholder="Новая заметка"></textarea>
-<button class="action">Сохранить</button></form><ul id="notes"></ul></div></section>
-<section id="updates" class="hidden"><h1>Обновление проекта</h1><div class="panel">
-<h2>Источник: GitHub</h2>
-<p><a href="https://github.com/Aspksa/SAYURI-TSUKISHIRO-v0.0.0" target="_blank" rel="noopener noreferrer" style="color:#a7c1ff">Aspksa/SAYURI-TSUKISHIRO-v0.0.0</a></p>
-<p class="muted">Источник обновлений: основная ветка main.</p>
-<button type="button" class="action" id="check">Проверить обновления</button>
-<button type="button" class="action hidden" id="stage">Подготовить обновление</button>
-<p id="updateResult" aria-live="polite">Нажмите «Проверить обновления».</p>
-<p class="muted">Установка подготовленных файлов произойдёт при следующем запуске BAT. Локальная база данных не заменяется. Интернет нужен только при проверке и загрузке изменений.</p>
-</div></section><p id="message" role="alert"></p></main>
+<section id="home">
+  <p class="eyebrow">Local system</p>
+  <h1>Ядро Sayuri</h1>
+  <p class="lead">Тихая локальная система. Все данные хранятся рядом с программой на вашем носителе, без облака.</p>
+  <div class="grid">
+    <div class="panel stat"><div class="label">Состояние</div><div class="value" id="statState">—</div></div>
+    <div class="panel stat"><div class="label">Заметок в базе</div><div class="value" id="statNotes">—</div></div>
+    <div class="panel stat"><div class="label">Версия</div><div class="value" id="statVersion">—</div></div>
+  </div>
+  <div class="panel"><h2>Состояние системы</h2><p id="status" class="muted" style="margin:0">Подключение…</p></div>
+</section>
+
+<section id="disk" class="hidden">
+  <p class="eyebrow">Local files</p>
+  <h1 id="diskTitle">Диск</h1>
+  <p class="lead">Личное файловое хранилище на вашем носителе: папки, загрузка перетаскиванием, корзина. Всё лежит в <code>data/disk</code>.</p>
+  <div class="toolbar" id="diskBar">
+    <button type="button" class="action sm" id="upBtn">Загрузить</button>
+    <button type="button" class="action sm ghost" id="mkBtn">Новая папка</button>
+    <span class="spacer"></span>
+    <button type="button" class="action sm ghost" id="trashBtn">Корзина</button>
+    <input type="file" id="picker" multiple class="hidden">
+  </div>
+  <div class="toolbar hidden" id="trashBar">
+    <button type="button" class="action sm ghost" id="backBtn">← К файлам</button>
+    <span class="spacer"></span>
+    <button type="button" class="action sm ghost" id="emptyBtn">Очистить корзину</button>
+  </div>
+  <div id="uploads"></div>
+  <div class="drop" id="drop"><div class="panel" style="margin:0">
+    <nav class="crumbs" id="crumbs" aria-label="Путь"></nav>
+    <ul class="files" id="files"></ul>
+    <div class="usage"><span id="usageText"></span><div class="bar"><span id="usageBar"></span></div></div>
+  </div></div>
+</section>
+
+<section id="storage" class="hidden">
+  <p class="eyebrow">SQLite</p>
+  <h1>База данных</h1>
+  <p class="lead">Заметки сохраняются в <code>data/sayuri.db</code> и переживают перезапуск.</p>
+  <div class="panel">
+    <form id="form">
+      <textarea id="text" maxlength="2000" required rows="3" placeholder="Запишите мысль…"></textarea>
+      <div class="row"><span class="hint"><span id="count">0</span> / 2000 · Ctrl+Enter — сохранить</span><button class="action">Сохранить</button></div>
+    </form>
+    <ul id="notes"></ul>
+  </div>
+</section>
+
+<section id="updates" class="hidden">
+  <p class="eyebrow">GitHub</p>
+  <h1>Обновление проекта</h1>
+  <p class="lead">Проверка и загрузка новых файлов приложения из основной ветки <b>main</b>.</p>
+  <div class="panel">
+    <div class="repo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17.3 4.8 18.3 5.1 18.3 5.1c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>
+      <div><a href="https://github.com/Aspksa/SAYURI-TSUKISHIRO-v0.0.0" target="_blank" rel="noopener noreferrer">Aspksa/SAYURI-TSUKISHIRO-v0.0.0</a><small>ветка main</small></div></div>
+    <div class="actions">
+      <button type="button" class="action" id="check">Проверить обновления</button>
+      <button type="button" class="action ghost hidden" id="stage">Подготовить обновление</button>
+    </div>
+    <p id="updateResult" aria-live="polite">Нажмите «Проверить обновления».</p>
+    <p class="note muted">Подготовленные файлы установятся при следующем запуске BAT. Локальная база данных не заменяется. Интернет нужен только для проверки и загрузки изменений.</p>
+  </div>
+</section>
+<p id="message" role="alert"></p>
+<dialog id="dlg"><form method="dialog" id="dlgForm"><h2 id="dlgTitle"></h2><p id="dlgText" class="hidden"></p>
+<input id="dlgInput" autocomplete="off" maxlength="200">
+<div class="actions" style="margin-top:18px"><button type="button" class="action ghost sm" id="dlgNo">Отмена</button><button class="action sm" id="dlgYes">OK</button></div></form></dialog>
+</main>
 <script>
 const el=id=>document.getElementById(id);
 async function api(path,opts){const r=await fetch(path,opts),j=await r.json();if(!r.ok)throw Error(j.error||"HTTP "+r.status);return j}
 document.querySelectorAll("[data-view]").forEach(btn=>btn.addEventListener("click",()=>{
 document.querySelectorAll("[data-view]").forEach(b=>b.removeAttribute("aria-current"));
 btn.setAttribute("aria-current","page");
-for(const id of ["home","storage","updates"])el(id).classList.toggle("hidden",id!==btn.dataset.view);
+for(const id of ["home","disk","storage","updates"])el(id).classList.toggle("hidden",id!==btn.dataset.view);
+if(btn.dataset.view==="disk")diskLoad();
 }));
+const fmt=new Intl.DateTimeFormat("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
 async function load(){try{
 const [s,n]=await Promise.all([api("/api/status"),api("/api/notes")]);
-el("status").textContent=s.name+" · "+s.version+" · база: "+s.database;
-el("notes").replaceChildren();for(const note of n.notes){const li=document.createElement("li");li.textContent=note.text;el("notes").append(li)}
-}catch(e){el("message").textContent=e.message;}}
+el("status").textContent=s.name+" · "+s.version+" · база: "+s.database+" · режим: "+s.mode;
+el("statState").textContent=s.database==="ready"?"В сети":s.database;el("statState").classList.toggle("ok",s.database==="ready");
+el("statNotes").textContent=n.notes.length>=100?"100+":n.notes.length;el("statVersion").textContent=s.version;
+el("sideStatus").textContent="Ядро активно";el("dot").classList.add("on");
+el("notes").replaceChildren();
+if(!n.notes.length){const li=document.createElement("li");li.className="empty";li.style.cssText="background:none;border:0";li.textContent="Пока нет заметок";el("notes").append(li)}
+for(const note of n.notes){const li=document.createElement("li");li.textContent=note.text;
+const t=document.createElement("time");t.dateTime=note.created;t.textContent=fmt.format(new Date(note.created));li.append(t);el("notes").append(li)}
+}catch(e){el("message").textContent=e.message;el("sideStatus").textContent="Нет связи";el("dot").classList.remove("on")}}
+el("text").oninput=()=>el("count").textContent=el("text").value.length;
+el("text").onkeydown=e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey))el("form").requestSubmit()};
 el("form").onsubmit=async e=>{e.preventDefault();el("message").textContent="";
-try{await api("/api/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:el("text").value})});el("text").value="";await load()}
+try{await api("/api/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:el("text").value})});el("text").value="";el("count").textContent=0;await load()}
 catch(err){el("message").textContent=err.message}};
 el("check").onclick=async()=>{el("check").disabled=true;el("stage").classList.add("hidden");el("updateResult").textContent="Проверка GitHub…";
 try{const r=await api("/api/updates/check");el("updateResult").textContent=r.available?
@@ -67,5 +279,89 @@ el("updateResult").textContent=r.restart_required?"Обновление подг
 el("stage").classList.add("hidden")}
 catch(err){el("updateResult").textContent="Ошибка: "+err.message}
 finally{el("stage").disabled=false}};
+
+/* ---------- Disk ---------- */
+const D={path:"",trash:false};
+const post=(path,body)=>api(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+const bytes=n=>{if(n==null)return"";const u=["Б","КБ","МБ","ГБ","ТБ"];let i=0;while(n>=1024&&i<4){n/=1024;i++}return(i?n.toFixed(n<10?1:0):n)+" "+u[i]};
+const dfmt=new Intl.DateTimeFormat("ru-RU",{day:"numeric",month:"short",year:"numeric"});
+const q=s=>encodeURIComponent(s);
+const join=(a,b)=>a?a+"/"+b:b;
+const IMG=/\.(png|jpe?g|gif|webp|bmp|avif)$/i;
+const svg=d=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>';
+const I={dl:svg('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'),ren:svg('<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>'),del:svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>'),res:svg('<path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5"/>'),dir:svg('<path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>')};
+const ext=n=>(n.includes(".")?n.split(".").pop():"FILE").slice(0,4).toUpperCase();
+function btn(cls,title,html,fn){const b=document.createElement("button");b.type="button";b.className=cls;b.title=title;b.setAttribute("aria-label",title);b.innerHTML=html;b.onclick=fn;return b}
+function ask({title,text,value,yes="OK",input=true}){return new Promise(res=>{
+const d=el("dlg"),i=el("dlgInput");el("dlgTitle").textContent=title;el("dlgText").textContent=text||"";el("dlgText").classList.toggle("hidden",!text);
+i.classList.toggle("hidden",!input);i.value=value||"";el("dlgYes").textContent=yes;
+let out=null;el("dlgYes").onclick=()=>{out=input?i.value:true};el("dlgNo").onclick=()=>d.close();
+d.onclose=()=>res(out);d.showModal();if(input){i.focus();const dot=i.value.lastIndexOf(".");i.setSelectionRange(0,dot>0?dot:i.value.length)}})}
+const fail=e=>{el("message").textContent=e.message};
+async function diskLoad(){el("message").textContent="";
+try{
+el("diskBar").classList.toggle("hidden",D.trash);el("trashBar").classList.toggle("hidden",!D.trash);
+el("diskTitle").textContent=D.trash?"Корзина":"Диск";
+const [list,u]=await Promise.all([D.trash?api("/api/disk/trash"):api("/api/disk/list?path="+q(D.path)),api("/api/disk/usage")]);
+const total=u.used+u.trash+u.free;
+el("usageText").textContent="Занято "+bytes(u.used)+(u.trash?" · в корзине "+bytes(u.trash):"")+" · свободно на носителе "+bytes(u.free);
+el("usageBar").style.width=Math.max(.5,100*(u.used+u.trash)/Math.max(total,1))+"%";
+drawCrumbs();
+const ul=el("files");ul.replaceChildren();
+const items=list.items;
+if(!items.length){const li=document.createElement("li");li.className="empty";li.style.cssText="display:block;border:0";li.textContent=D.trash?"Корзина пуста":"Здесь пока пусто. Перетащите файлы сюда";ul.append(li);return}
+for(const it of items)ul.append(D.trash?trashRow(it):row(it))
+}catch(e){fail(e)}}
+function drawCrumbs(){const c=el("crumbs");c.replaceChildren();
+const add=(label,path)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.onclick=()=>{D.path=path;diskLoad()};c.append(b);return b};
+if(D.trash){add("Корзина","").onclick=null;return}
+add("Мой диск","");let acc="";for(const p of D.path?D.path.split("/"):[]){acc=join(acc,p);const sep=document.createElement("i");sep.textContent="›";c.append(sep);add(p,acc)}}
+function row(it){const li=document.createElement("li");const ico=document.createElement("div");ico.className="ico"+(it.type==="dir"?" dir":"");
+if(it.type==="dir")ico.innerHTML=I.dir;else if(IMG.test(it.name)){const im=document.createElement("img");im.loading="lazy";im.alt="";im.src="/api/disk/file?inline=1&path="+q(it.path);im.onerror=()=>{im.remove();ico.textContent="IMG"};ico.append(im)}
+else ico.textContent=ext(it.name);
+const nm=document.createElement("button");nm.type="button";nm.className="nm";nm.textContent=it.name;nm.title=it.name;
+nm.onclick=()=>{if(it.type==="dir"){D.path=it.path;diskLoad()}else location.href="/api/disk/file?path="+q(it.path)};
+const size=document.createElement("span");size.className="meta";size.textContent=it.type==="dir"?"Папка":bytes(it.size);
+const date=document.createElement("span");date.className="meta";date.textContent=dfmt.format(new Date(it.modified));
+const acts=document.createElement("div");acts.className="acts";
+if(it.type==="file")acts.append(btn("icon-btn","Скачать",I.dl,()=>{location.href="/api/disk/file?path="+q(it.path)}));
+acts.append(btn("icon-btn","Переименовать",I.ren,async()=>{const v=await ask({title:"Переименовать",value:it.name,yes:"Сохранить"});if(v==null||v===it.name)return;
+try{await post("/api/disk/rename",{path:it.path,name:v});diskLoad()}catch(e){fail(e)}}));
+acts.append(btn("icon-btn danger","В корзину",I.del,async()=>{try{await post("/api/disk/delete",{paths:[it.path]});diskLoad()}catch(e){fail(e)}}));
+li.append(ico,nm,size,date,acts);return li}
+function trashRow(it){const li=document.createElement("li");const ico=document.createElement("div");ico.className="ico"+(it.type==="dir"?" dir":"");
+if(it.type==="dir")ico.innerHTML=I.dir;else ico.textContent=ext(it.name);
+const nm=document.createElement("span");nm.className="nm";nm.style.cursor="default";nm.textContent=it.name;
+const size=document.createElement("span");size.className="meta";size.textContent=bytes(it.size);
+const date=document.createElement("span");date.className="meta";date.textContent="удалено "+dfmt.format(new Date(it.deleted));
+const acts=document.createElement("div");acts.className="acts";acts.style.opacity=1;
+acts.append(btn("icon-btn","Восстановить",I.res,async()=>{try{await post("/api/disk/restore",{id:it.id});diskLoad()}catch(e){fail(e)}}));
+li.append(ico,nm,size,date,acts);return li}
+el("mkBtn").onclick=async()=>{const v=await ask({title:"Новая папка",value:"Новая папка",yes:"Создать"});if(v==null)return;
+try{await post("/api/disk/mkdir",{path:D.path,name:v});diskLoad()}catch(e){fail(e)}};
+el("trashBtn").onclick=()=>{D.trash=true;diskLoad()};
+el("backBtn").onclick=()=>{D.trash=false;diskLoad()};
+el("emptyBtn").onclick=async()=>{const ok=await ask({title:"Очистить корзину?",text:"Файлы будут удалены с носителя без возможности восстановления.",yes:"Очистить",input:false});if(!ok)return;
+try{await post("/api/disk/trash/empty",{});diskLoad()}catch(e){fail(e)}};
+el("upBtn").onclick=()=>el("picker").click();
+el("picker").onchange=()=>{uploadAll([...el("picker").files]);el("picker").value=""};
+function uploadOne(file,folder){return new Promise(resolve=>{
+const box=document.createElement("div");box.className="up";box.innerHTML='<span></span><div class="bar"><span></span></div>';const label=box.firstChild,fill=box.querySelector(".bar span");
+label.textContent=file.name+" · 0%";el("uploads").append(box);
+const x=new XMLHttpRequest();x.open("POST","/api/disk/upload?path="+q(folder)+"&name="+q(file.name));x.setRequestHeader("Content-Type","application/octet-stream");
+x.upload.onprogress=e=>{if(e.lengthComputable){const p=Math.round(100*e.loaded/e.total);label.textContent=file.name+" · "+p+"%";fill.style.width=p+"%"}};
+x.onload=()=>{let err="";if(x.status>=300){try{err=JSON.parse(x.responseText).error}catch(_){err="HTTP "+x.status}}
+if(err){label.textContent=file.name+" · ошибка: "+err;setTimeout(()=>box.remove(),6000)}else box.remove();resolve()};
+x.onerror=()=>{label.textContent=file.name+" · нет связи";setTimeout(()=>box.remove(),6000);resolve()};
+x.send(file)})}
+async function uploadAll(files){const folder=D.path;for(const f of files)await uploadOne(f,folder);if(D.path===folder&&!D.trash)diskLoad()}
+const drop=el("drop");let depth=0;
+const hasFiles=e=>[...(e.dataTransfer?.types||[])].includes("Files");
+drop.addEventListener("dragenter",e=>{if(!hasFiles(e)||D.trash)return;e.preventDefault();depth++;drop.classList.add("over")});
+drop.addEventListener("dragover",e=>{if(hasFiles(e)&&!D.trash)e.preventDefault()});
+drop.addEventListener("dragleave",()=>{if(--depth<=0){depth=0;drop.classList.remove("over")}});
+drop.addEventListener("drop",e=>{if(!hasFiles(e)||D.trash)return;e.preventDefault();depth=0;drop.classList.remove("over");
+uploadAll([...e.dataTransfer.files].filter(f=>f.size>0||f.type))});
+for(const t of ["dragover","drop"])window.addEventListener(t,e=>{if(hasFiles(e))e.preventDefault()});
 load();
 </script></body></html>
