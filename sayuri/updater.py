@@ -16,7 +16,7 @@ from .core import ROOT
 OWNER = "Aspksa"
 REPO = "SAYURI-TSUKISHIRO-v0.0.0"
 # Until main contains the application, track the development branch.
-DEFAULT_BRANCH = "feat/portable-core-v0.0.0"
+DEFAULT_BRANCH = "main"
 ALLOWED_BRANCHES = ("main", DEFAULT_BRANCH)
 MAX_FILE = 512 * 1024
 MAX_TOTAL = 4 * 1024 * 1024
