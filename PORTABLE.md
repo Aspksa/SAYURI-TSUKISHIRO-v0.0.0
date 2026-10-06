@@ -10,7 +10,7 @@ Install Python 3 for Windows or supply a compatible Windows portable Python runt
 To obtain the sources using GitHub without manual ZIP downloads (Git must be installed):
 
 ```bat
-git clone --branch feat/portable-core-v0.0.0 https://github.com/Aspksa/SAYURI-TSUKISHIRO-v0.0.0.git
+git clone https://github.com/Aspksa/SAYURI-TSUKISHIRO-v0.0.0.git
 ```
 
 ## Left sidebar
@@ -19,7 +19,7 @@ git clone --branch feat/portable-core-v0.0.0 https://github.com/Aspksa/SAYURI-TS
 - Project Update (GitHub)
 
 ## Updates from GitHub
-The update module tracks the current **development branch** `feat/portable-core-v0.0.0`. The repository's `main` branch currently contains only its initial README; switch to main only when the application is merged and the update manifest is available there.
+The updater tracks the **main** branch of this GitHub repository.
 
 1. Open **Project Update** in the left navigation and click **Check for updates**.
 2. Review changes and click **Prepare update**.
