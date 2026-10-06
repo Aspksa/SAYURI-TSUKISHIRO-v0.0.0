@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAYURI TSUKISHIRO</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,Segoe UI,sans-serif;background:#0c1020;color:#f3f5fe}
+*{box-sizing:border-box}body{margin:0;min-height:100vh}
+aside{position:fixed;inset:0 auto 0 0;width:236px;background:#151c30;border-right:1px solid #36445f;padding:24px 14px}
+.brand{font-weight:750;letter-spacing:.1em;margin:8px 10px 32px}
+.brand small{display:block;font-size:11px;color:#94addb;letter-spacing:.05em;margin-top:10px}
+nav button{width:100%;display:block;text-align:left;background:transparent;color:#c5d0e9;border:0;border-radius:10px;padding:13px 14px;font:inherit;cursor:pointer;margin:5px 0}
+nav button[aria-current="page"]{background:#30436e;color:white;font-weight:700}
+main{margin-left:236px;max-width:950px;padding:44px}
+h1{font-size:clamp(25px,4vw,38px)}small,.muted{color:#a6b6d2}
+.panel{background:#171f33;border:1px solid #36445f;border-radius:14px;padding:22px;margin:24px 0}
+textarea,button{font:inherit}textarea{width:100%;padding:12px;border:1px solid #60708a;border-radius:9px;background:#0d1324;color:white}
+.action{background:#91acff;border:0;border-radius:8px;padding:11px 17px;color:#0b1427;font-weight:700;cursor:pointer;margin-top:10px}
+.action:disabled{opacity:.5;cursor:wait}
+li{overflow-wrap:anywhere;white-space:pre-wrap;margin:10px 0}.hidden{display:none!important}
+#message{min-height:20px;white-space:pre-wrap}
+@media(max-width:640px){aside{position:static;width:auto;border-right:0;border-bottom:1px solid #36445f;padding:14px}.brand{margin:4px 4px 10px}nav{display:flex;gap:6px}nav button{font-size:13px;padding:10px 9px}main{margin:0;padding:16px}.panel{padding:16px}}
+</style></head><body>
+<aside><div class="brand">SAYURI TSUKISHIRO<small>LOCAL SYSTEM · v0.0.0</small></div>
+<nav aria-label="Основное меню">
+<button type="button" data-view="home" aria-current="page">⌂ Обзор</button>
+<button type="button" data-view="storage">▤ База данных</button>
+<button type="button" data-view="updates">↻ Обновление проекта</button>
+</nav></aside>
+<main>
+<section id="home"><h1>Ядро Sayuri</h1><div class="panel"><h2>Состояние системы</h2><p id="status">Подключение…</p><p class="muted">Данные остаются на локальном носителе.</p></div></section>
+<section id="storage" class="hidden"><h1>База данных</h1><div class="panel"><form id="form">
+<textarea id="text" maxlength="2000" required rows="3" placeholder="Новая заметка"></textarea>
+<button class="action">Сохранить</button></form><ul id="notes"></ul></div></section>
+<section id="updates" class="hidden"><h1>Обновление проекта</h1><div class="panel">
+<h2>Источник: GitHub</h2>
+<p><a href="https://github.com/Aspksa/SAYURI-TSUKISHIRO-v0.0.0" target="_blank" rel="noopener noreferrer" style="color:#a7c1ff">Aspksa/SAYURI-TSUKISHIRO-v0.0.0</a></p>
+<p class="muted">Текущая ветка разработки: feat/portable-core-v0.0.0. Основная ветка main ещё не содержит приложения.</p>
+<button type="button" class="action" id="check">Проверить обновления</button>
+<button type="button" class="action hidden" id="stage">Подготовить обновление</button>
+<p id="updateResult" aria-live="polite">Нажмите «Проверить обновления».</p>
+<p class="muted">Установка подготовленных файлов произойдёт при следующем запуске BAT. Локальная база данных не заменяется. Интернет нужен только при проверке и загрузке изменений.</p>
+</div></section><p id="message" role="alert"></p></main>
+<script>
+const el=id=>document.getElementById(id);
+async function api(path,opts){const r=await fetch(path,opts),j=await r.json();if(!r.ok)throw Error(j.error||"HTTP "+r.status);return j}
+document.querySelectorAll("[data-view]").forEach(btn=>btn.addEventListener("click",()=>{
+document.querySelectorAll("[data-view]").forEach(b=>b.removeAttribute("aria-current"));
+btn.setAttribute("aria-current","page");
+for(const id of ["home","storage","updates"])el(id).classList.toggle("hidden",id!==btn.dataset.view);
+}));
+async function load(){try{
+const [s,n]=await Promise.all([api("/api/status"),api("/api/notes")]);
+el("status").textContent=s.name+" · "+s.version+" · база: "+s.database;
+el("notes").replaceChildren();for(const note of n.notes){const li=document.createElement("li");li.textContent=note.text;el("notes").append(li)}
+}catch(e){el("message").textContent=e.message;}}
+el("form").onsubmit=async e=>{e.preventDefault();el("message").textContent="";
+try{await api("/api/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:el("text").value})});el("text").value="";await load()}
+catch(err){el("message").textContent=err.message}};
+el("check").onclick=async()=>{el("check").disabled=true;el("stage").classList.add("hidden");el("updateResult").textContent="Проверка GitHub…";
+try{const r=await api("/api/updates/check");el("updateResult").textContent=r.available?
+"Найдены изменения ("+r.changed.length+"): "+r.changed.join(", "):"Приложение соответствует текущей ветке GitHub.";
+if(r.available)el("stage").classList.remove("hidden")}
+catch(err){el("updateResult").textContent="Ошибка: "+err.message}
+finally{el("check").disabled=false}};
+el("stage").onclick=async()=>{el("stage").disabled=true;el("updateResult").textContent="Загрузка и проверка файлов…";
+try{const r=await api("/api/updates/stage",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+el("updateResult").textContent=r.restart_required?"Обновление подготовлено. Закройте сервер и снова запустите SAYURITSUKISHIRO.bat.":"Изменений нет.";
+el("stage").classList.add("hidden")}
+catch(err){el("updateResult").textContent="Ошибка: "+err.message}
+finally{el("stage").disabled=false}};
+load();
+</script></body></html>

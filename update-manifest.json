@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "files": [
+    "sayuri/__init__.py",
+    "sayuri/core.py",
+    "sayuri/storage.py",
+    "sayuri/updater.py",
+    "sayuri/web.py",
+    "web/index.html",
+    "tests/test_core.py",
+    "PORTABLE.md"
+  ]
+}
