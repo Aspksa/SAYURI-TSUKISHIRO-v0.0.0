@@ -1,23 +1,33 @@
-# SAYURI TSUKISHIRO v0.0.0 — portable Windows launcher
+# Portable use and GitHub updates — SAYURI TSUKISHIRO v0.0.0
 
-This is the **local-only prototype**. No Cloud.ru, no cloud accounts, no internet dependency at runtime.
+Local Windows prototype, **no Cloud.ru**, no cloud synchronization.
 
-## Directory layout
-- `sayuri/` — application core, SQLite storage, and local web server
-- `web/` — responsive HTML interface
-- `data/` — generated at startup, containing `sayuri.db` and SQLite journal files
-- `SAYURITSUKISHIRO.bat` — Windows launcher from any writable drive/folder
-- `runtime/python/python.exe` — optional **Windows-compatible portable Python runtime** (not bundled)
+## Folder and portable launch
+Use a **writable** folder on HDD, SSD, or USB drive. The application uses relative paths based on its own location. `data/sayuri.db` and SQLite WAL stay beside the application; never remove the USB while Sayuri is running.
 
-## Launch on Windows
-1. Download the branch ZIP and extract **all** files to a **writable** folder or USB drive.
-2. Install Python 3, or place a compatible Windows Python distribution in `runtime/python/`, including required standard libraries and SQLite support.
-3. Run `SAYURITSUKISHIRO.bat`.
-4. Open `http://127.0.0.1:8765` locally in a browser. The BAT also tries to open it automatically.
-5. Stop with Ctrl+C in the console before ejecting the USB drive.
+Install Python 3 for Windows or supply a compatible Windows portable Python runtime at `runtime/python/python.exe` with the standard library and SQLite. The Python runtime is **not** bundled. Run `SAYURITSUKISHIRO.bat` then open `http://127.0.0.1:8765`.
 
-The launcher changes directory to its own location: no fixed C:/ drive path. The USB drive must remain connected while the app runs. This is not a standalone executable; without a bundled runtime, Python must be installed on the host.
+To obtain the sources using GitHub without manual ZIP downloads (Git must be installed):
 
-**Security:** Only `127.0.0.1` is supported in this prototype. Other phones/computers cannot yet connect; LAN/internet access needs authentication and HTTPS or another secure transport before enabling it.
+```bat
+git clone --branch feat/portable-core-v0.0.0 https://github.com/Aspksa/SAYURI-TSUKISHIRO-v0.0.0.git
+```
 
-Test: `python -m unittest discover -s tests -v`.
+## Left sidebar
+- Overview (core health)
+- Database (SQLite notes)
+- Project Update (GitHub)
+
+## Updates from GitHub
+The update module tracks the current **development branch** `feat/portable-core-v0.0.0`. The repository's `main` branch currently contains only its initial README; switch to main only when the application is merged and the update manifest is available there.
+
+1. Open **Project Update** in the left navigation and click **Check for updates**.
+2. Review changes and click **Prepare update**.
+3. Close the running BAT window gracefully (Ctrl+C). Run `SAYURITSUKISHIRO.bat` again; the launcher applies verified, staged application files before starting the server.
+4. On failure, the updater attempts rollback; a previous-file backup remains under `data/.updates/backup`.
+
+Changes are only fetched from the fixed GitHub repository. Files are verified against GitHub Git blob SHA-1 values and restricted to the manifest's application paths. No delete actions are taken. **Database, runtime and local user data are excluded.** The launcher file is intentionally stable and is not overwritten while it executes.
+
+Internet access is required for GitHub update checks, not normal local operation. The API is **localhost-only**: there is no user authentication or safe LAN/Internet deployment yet. Only trust changes merged to the configured repository branch; branch code updates can execute on your machine on restart.
+
+Run unit tests locally: `python -m unittest discover -s tests -v`. Windows/USB smoke testing is still required.
