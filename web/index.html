@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAYURI TSUKISHIRO</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0c1120;color:#eaf0ff}
+body{margin:0 auto;max-width:760px;padding:clamp(16px,5vw,48px)}
+header{border-bottom:1px solid #33415c;margin-bottom:28px;padding-bottom:22px}
+h1{letter-spacing:.12em;font-size:clamp(23px,4vw,35px)}small{color:#9db0cd}
+section{background:#151d30;border:1px solid #33415c;border-radius:14px;padding:20px;margin:16px 0}
+textarea,input,button{box-sizing:border-box;width:100%;font:inherit;border-radius:9px;padding:12px}
+textarea,input{color:#fff;background:#0c1120;border:1px solid #53627f}
+button{border:0;background:#789dff;color:#08101f;cursor:pointer;font-weight:700;margin-top:10px}
+button:hover{background:#a2baff}li{margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+#error{color:#ffadad}#status{color:#9fdbbd}
+</style>
+</head>
+<body>
+<header><small>LOCAL-FIRST • CORE v0.0.1</small><h1>SAYURI TSUKISHIRO</h1><div>Панель управления · веб-версия</div></header>
+<section id="auth"><h2>Доступ</h2><p>Введите токен из окна запуска Sayuri. Он хранится только в текущей вкладке.</p><input id="token" type="password" autocomplete="off" placeholder="Токен доступа"><button id="login">Подключиться</button></section>
+<section id="workspace" hidden><p id="status">Подключение…</p><h2>Заметки</h2><form id="form"><textarea id="content" maxlength="2000" required rows="3" placeholder="Новая заметка"></textarea><button>Сохранить в SQLite</button></form><ul id="notes"></ul><button id="logout">Отключиться</button></section>
+<p id="error" role="alert"></p>
+<script>
+const $=id=>document.getElementById(id);let token=sessionStorage.getItem("sayuri_token")||"";
+async function request(path,options={}){
+ const response=await fetch(path,{...options,headers:{"X-Sayuri-Token":token,...options.headers}});
+ const body=await response.json();if(!response.ok)throw Error(body.error||"HTTP "+response.status);return body;
+}
+async function refresh(){
+ const [status,items]=await Promise.all([request("/api/status"),request("/api/notes")]);
+ $("status").textContent=status.name+" · "+status.version+" · SQLite: "+status.database;
+ $("notes").replaceChildren();
+ for(const note of items.notes){const li=document.createElement("li");li.textContent=note.content+" · "+new Date(note.created_at).toLocaleString();$("notes").append(li);}
+}
+async function login(){token=$("token").value.trim()||token;$("error").textContent="";
+ try{await refresh();sessionStorage.setItem("sayuri_token",token);$("auth").hidden=true;$("workspace").hidden=false}
+ catch(e){$("error").textContent=e.message;}}
+$("login").onclick=login;
+$("form").onsubmit=async e=>{e.preventDefault();$("error").textContent="";
+ try{await request("/api/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({content:$("content").value})});$("content").value="";await refresh();}
+ catch(err){$("error").textContent=err.message;}};
+$("logout").onclick=()=>{sessionStorage.removeItem("sayuri_token");token="";$("token").value="";$("workspace").hidden=true;$("auth").hidden=false;};
+if(token)login();
+</script>
+</body></html>
